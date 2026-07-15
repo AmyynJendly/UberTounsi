@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    container_name: ubertounsi_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: covoiturage
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
+
+  app:
+    build: .
+    container_name: ubertounsi_app
+    restart: always
+    ports:
+      - "8080:8080" 
+      - "8081:8081" 
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: covoiturage
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+    depends_on:
+      - db
+
+volumes:
+  db_data:

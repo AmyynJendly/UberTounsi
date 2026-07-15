@@ -7,6 +7,7 @@ target/
 *.jar
 *.war
 *.ear
+dependency-reduced-pom.xml
 
 # Compiled Java classes
 *.class

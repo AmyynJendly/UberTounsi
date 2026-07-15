@@ -9,9 +9,12 @@ import java.sql.SQLException;
  */
 public class DatabaseConnection {
 
-    private static final String URL      = "jdbc:mysql://localhost:3306/covoiturage?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8";
-    private static final String USER     = "root";
-    private static final String PASSWORD = "";
+    private static final String DB_HOST  = System.getenv().getOrDefault("DB_HOST", "localhost");
+    private static final String DB_PORT  = System.getenv().getOrDefault("DB_PORT", "3306");
+    private static final String DB_NAME  = System.getenv().getOrDefault("DB_NAME", "covoiturage");
+    private static final String URL      = String.format("jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8", DB_HOST, DB_PORT, DB_NAME);
+    private static final String USER     = System.getenv().getOrDefault("DB_USER", "root");
+    private static final String PASSWORD = System.getenv().getOrDefault("DB_PASSWORD", "");
 
     private static DatabaseConnection instance;
     private Connection connection;

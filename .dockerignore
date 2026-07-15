@@ -1,0 +1,37 @@
+# Build output
+target/*
+*.class
+*.jar
+*.war
+!target/covoitdark-1.0.0.jar
+
+# IDE configurations
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.project
+.classpath
+.settings/
+
+# Version Control
+.git/
+.gitignore
+
+# Docker config
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation and design
+UML/
+README.md
+
+# AI config
+.claude/
+.mcp.json
+.playwright-mcp/
+walkthrough.md
+implementation_plan.md
+task.md
