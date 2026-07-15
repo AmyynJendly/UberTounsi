@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Covoit - Portefeuille Sécurisé</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .w-hero { background: linear-gradient(135deg, var(--primary) 0%, #8B5CF6 100%); padding: 64px; border-radius: var(--radius-xl); color: #FFF; margin-bottom: 48px; position: relative; overflow: hidden; box-shadow: var(--shadow-xl); }
+    .w-shape { position: absolute; right: -50px; top: -50px; width: 300px; height: 300px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+    
+    .w-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 40px; }
+    
+    .tx-item { display: flex; align-items: center; justify-content: space-between; padding: 24px 0; border-bottom: 1px solid var(--border-light); }
+    .tx-item:last-child { border: none; }
+    .tx-icon { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .tx-in { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+    .tx-out { background: var(--bg-app); color: var(--text-main); }
+  </style>
+</head>
+<body>
+
+  <!-- THE FLAWLESS NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="brand">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 2L2 22h20L12 2zm0 4.83l6.5 13.17H5.5L12 6.83z"/></svg> Covoit
+    </a>
+    <div class="nav-links">
+      <a href="search.html" class="nav-link">Rechercher</a>
+      <a href="publish.html" class="nav-link">Proposer un trajet</a>
+      <a href="dashboard.html" class="nav-link" id="nav-books" style="display:none;">Mes réservations</a>
+    </div>
+    <div class="nav-actions" id="n-auth" style="display:none;">
+      <a href="auth.html" class="btn btn-secondary" style="border:none; box-shadow:none; font-weight:700;">Se connecter</a>
+      <a href="auth.html" class="btn btn-primary">Inscription</a>
+    </div>
+    <div class="nav-actions" id="n-user" style="display:none;">
+      <a href="inbox.html" class="btn-ghost" style="padding:8px; border-radius:50%;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></a>
+      <a href="wallet.html" class="badge badge-success" style="font-size:14px; padding:6px 16px;" id="u-bal">...</a>
+      <a href="dashboard.html"><img src="" class="avatar" id="u-avatar"></a>
+    </div>
+  </nav>
+
+  <main class="container" style="padding-top: 48px; padding-bottom: 96px;">
+    
+    <div class="w-hero">
+        <div class="w-shape"></div>
+        <div style="position:relative; z-index:2; display:flex; justify-content:space-between; align-items:flex-end;">
+            <div class="flex-col">
+                <span style="font-size:16px; font-weight:700; opacity:0.8; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Solde Disponible</span>
+                <span style="font-size:64px; font-weight:800; line-height:1;"><span id="hero-bal">0.00</span> <span style="font-size:32px;">TND</span></span>
+            </div>
+            <button class="btn" style="background:#FFF; color:var(--primary);" onclick="document.getElementById('modal-topup').classList.add('open')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Recharger
+            </button>
+        </div>
+    </div>
+
+    <div class="w-grid">
+        
+        <div class="card" style="padding: 32px;">
+            <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 32px; color:var(--text-main);">Historique des transactions</h2>
+            <div id="tx-list"></div>
+        </div>
+
+        <div class="card" style="padding: 32px; height: fit-content;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" width="48" height="48" style="margin-bottom:24px; background:rgba(16,185,129,0.1); padding:12px; border-radius:12px;"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+            <h3 style="font-size:20px; font-weight:800; margin-bottom:12px;">Paiements sécurisés</h3>
+            <p style="color:var(--text-muted); font-size:15px; line-height:1.6; margin-bottom: 24px;">Vos fonds sont protégés. Lors d'une réservation, l'argent est bloqué jusqu'à ce que le trajet soit effectué avec succès.</p>
+            <button class="btn btn-secondary" style="width:100%;" onclick="Toast.show('Retrait vers compte bancaire bientôt disponible.', 'success')">Demander un retrait</button>
+        </div>
+
+    </div>
+
+  </main>
+
+  <!-- TOP UP MODAL -->
+  <div class="modal-overlay" id="modal-topup">
+    <div class="modal-content">
+      <button class="modal-close" onclick="document.getElementById('modal-topup').classList.remove('open')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      
+      <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 16px;">Recharger le portefeuille</h2>
+      <p style="color:var(--text-muted); margin-bottom:32px; font-size:15px;">Choisissez le montant à créditer via carte bancaire.</p>
+      
+      <div class="flex gap-4" style="margin-bottom:24px;">
+          <button class="btn btn-secondary" style="flex:1" onclick="document.getElementById('m-amount').value=20">20 TND</button>
+          <button class="btn btn-secondary" style="flex:1" onclick="document.getElementById('m-amount').value=50">50 TND</button>
+          <button class="btn btn-secondary" style="flex:1" onclick="document.getElementById('m-amount').value=100">100 TND</button>
+      </div>
+
+      <div class="form-group" style="margin-bottom:32px;">
+          <label>Montant personnalisé (TND)</label>
+          <input type="number" id="m-amount" class="input-base" style="font-size:24px; font-weight:800; height:64px;" value="20" min="1">
+      </div>
+
+      <button id="btn-pay" class="btn btn-primary" style="width:100%; height:52px; font-size:16px;" onclick="addFunds()"><div class="spinner"></div>Valider le paiement de sécurité</button>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    let u = window.API.getCurrentUser();
+
+    function renderWallet() {
+        if(!u) return;
+        const heroBal = document.getElementById('hero-bal');
+        if(heroBal) heroBal.innerText = u.balance.toFixed(2);
+        
+        const w = DB.get('cov_wallet') || [];
+        const myW = w.filter(x => x.userId === u.id);
+
+        if(myW.length === 0) {
+            document.getElementById('tx-list').innerHTML = `<div style="text-align:center; padding:48px; color:var(--text-muted);">Aucune transaction.</div>`;
+            return;
+        }
+
+        document.getElementById('tx-list').innerHTML = myW.map(tx => {
+            const d = new Date(tx.date);
+            const isCred = tx.type === 'CREDIT';
+            const icon = isCred 
+                ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>` 
+                : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+
+            return `
+            <div class="tx-item">
+               <div class="flex items-center gap-4">
+                  <div class="tx-icon ${isCred ? 'tx-in' : 'tx-out'}">${icon}</div>
+                  <div class="flex-col">
+                     <span style="font-weight:700; font-size:16px;">${tx.title}</span>
+                     <span style="color:var(--text-muted); font-size:14px; font-weight:500;">${d.toLocaleDateString()} à ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                  </div>
+               </div>
+               <span style="font-weight:800; font-size:18px; color:${isCred ? 'var(--success)' : 'var(--text-main)'};">
+                  ${isCred ? '+' : '-'} ${tx.amount.toFixed(2)} TND
+               </span>
+            </div>`;
+        }).join('');
+    }
+
+    async function addFunds() {
+        const btn = document.getElementById('btn-pay');
+        const amt = parseFloat(document.getElementById('m-amount').value);
+        if(!amt || amt <= 0) return Toast.show('Montant invalide', 'error');
+
+        btn.classList.add('loading');
+        const res = await window.API.addFunds(amt);
+        btn.classList.remove('loading');
+        
+        if(res.error) return Toast.show(res.error, 'error');
+        
+        document.getElementById('modal-topup').classList.remove('open');
+        Toast.show(`${amt} TND rechargés avec succès !`, 'success');
+        u = window.API.getCurrentUser();
+        renderWallet();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if(!u) return window.location.href = 'auth.html';
+        renderWallet();
+    });
+  </script>
+</body>
+</html>

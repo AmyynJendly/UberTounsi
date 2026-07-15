@@ -1,0 +1,22 @@
+{
+  "name": "UberTounsi - Covoiturage",
+  "short_name": "UberTounsi",
+  "description": "Plateforme de covoiturage en Tunisie",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#c3f832",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "img/branding/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/branding/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

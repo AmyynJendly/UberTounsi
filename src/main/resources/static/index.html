@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Covoit - Voyagez Mieux, Ensemble</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .hero {
+      position: relative;
+      height: 75vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0F172A;
+    }
+
+    .hero-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.5;
+      filter: grayscale(20%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      max-width: 800px;
+      padding: 0 24px;
+    }
+
+    .hero-title {
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      color: #fff;
+    }
+
+    .hero-subtitle {
+      font-size: 20px;
+      font-weight: 500;
+      color: #94A3B8;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    .section {
+      padding: 96px 0;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      margin-top: 64px;
+    }
+
+    .feature-card {
+      background: var(--bg-surface);
+      padding: 40px;
+      border-radius: 24px;
+      border: 1px solid var(--border-light);
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-12px);
+      border-color: var(--primary);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .feature-icon {
+      font-size: 40px;
+      margin-bottom: 24px;
+      display: block;
+    }
+
+    .feature-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    .feature-text {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .about-box {
+      background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+      padding: 80px;
+      border-radius: 32px;
+      color: #fff;
+      display: flex;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .about-text {
+      flex: 1;
+    }
+
+    .about-image {
+      flex: 1;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .about-image img {
+      width: 100%;
+      display: block;
+    }
+
+    @media (max-width: 968px) {
+      .hero-title {
+        font-size: 48px;
+      }
+
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .about-box {
+        flex-direction: column;
+        padding: 40px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- THE FLAWLESS NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="brand">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+        <path d="M12 2L2 22h20L12 2zm0 4.83l6.5 13.17H5.5L12 6.83z" />
+      </svg> Covoit
+    </a>
+    <div class="nav-links">
+      <!-- Injected by app.js -->
+    </div>
+    <div class="nav-actions" id="n-auth" style="display:none;">
+      <a href="auth.html" class="btn btn-secondary" style="border:none; box-shadow:none; font-weight:700;">Se
+        connecter</a>
+      <a href="auth.html" class="btn btn-primary">Inscription</a>
+    </div>
+    <div class="nav-actions" id="n-user" style="display:none;">
+      <!-- Injected by app.js: Wallet and Avatar -->
+    </div>
+  </nav>
+
+  <header class="hero">
+    <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070&auto=format&fit=crop"
+      class="hero-bg" alt="Hero Background">
+    <div class="hero-content">
+      <h1 class="hero-title">Le Covoiturage <span class="text-gradient">Réinventé</span>.</h1>
+      <p class="hero-subtitle">Rejoignez une communauté de confiance. Réduisez vos frais, minimisez votre empreinte
+        carbone et faites des rencontres inoubliables sur la route.</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; max-width: 500px; margin: 40px auto 0 auto;">
+        <a href="search.html" class="btn btn-primary" style="height:60px; font-size:18px; display:flex !important; justify-content:center !important; align-items:center !important; width:100%; line-height:60px; padding:0; white-space:nowrap;">Trouver un trajet</a>
+        <a href="publish.html" class="btn btn-secondary" style="height:60px; font-size:18px; color:#fff; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.4); backdrop-filter:blur(10px); display:flex !important; justify-content:center !important; align-items:center !important; width:100%; line-height:60px; padding:0; white-space:nowrap;">Devenir chauffeur</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="section">
+      <div style="text-align:center; max-width:700px; margin:0 auto;">
+        <span class="badge badge-primary" style="margin-bottom:16px;">Notre Mission</span>
+        <h2 style="font-size:40px; font-weight:800; letter-spacing:-0.03em;">Une expérience fluide de bout en bout.</h2>
+        <p style="color:var(--text-muted); font-size:18px; margin-top:16px;">Nous avons bâti cette plateforme pour
+          simplifier vos déplacements quotidiens en mettant l'accent sur trois piliers fondamentaux.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="feature-card">
+          <span class="feature-icon">🛡️</span>
+          <h3 class="feature-title">Sécurité & Confiance</h3>
+          <p class="feature-text">Profils vérifiés, avis détaillés et système de messagerie direct pour voyager en toute
+            sérénité.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">💰</span>
+          <h3 class="feature-title">Économies Partagées</h3>
+          <p class="feature-text">Divisez vos frais de péage et de carburant. Les transactions sont sécurisées par notre
+            système de wallet.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🌍</span>
+          <h3 class="feature-title">Impact Écologique</h3>
+          <p class="feature-text">Moins de voitures sur la route signifie moins de CO2. Contribuez à un futur plus vert
+            à chaque trajet.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="about-box">
+        <div class="about-text">
+          <h2 style="font-size:36px; font-weight:800; margin-bottom:24px;">Pourquoi nous ?</h2>
+          <p style="font-size:17px; line-height:1.7; opacity:0.8; margin-bottom:32px;">
+            Covoit n'est pas qu'un simple service de transport, c'est une plateforme sociale conçue pour transformer la
+            route en un espace de partage. Avec notre système de gestion de réputation intelligent et notre interface
+            intuitive, planifier votre prochain voyage n'a jamais été aussi simple.
+            <br><br>
+            Que vous soyez étudiant, professionnel ou voyageur occasionnel, vous trouverez toujours un trajet qui
+            correspond à vos besoins et à votre budget.
+          </p>
+          <div class="flex gap-6">
+            <div class="flex-col">
+              <span style="font-size:28px; font-weight:800;">+10k</span>
+              <span style="font-size:13px; opacity:0.6; text-transform:uppercase; font-weight:700;">Trajets
+                quotidiens</span>
+            </div>
+            <div class="flex-col">
+              <span style="font-size:28px; font-weight:800;">99.9%</span>
+              <span style="font-size:13px; opacity:0.6; text-transform:uppercase; font-weight:700;">Satisfaction</span>
+            </div>
+          </div>
+        </div>
+        <div class="about-image">
+          <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2015&auto=format&fit=crop"
+            alt="Carpooling Life">
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer style="padding:48px 0; border-top:1px solid var(--border-light); text-align:center; color:var(--text-faint);">
+    <p>© 2026 Covoit Marketplace. Tous droits réservés.</p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+
+</html>

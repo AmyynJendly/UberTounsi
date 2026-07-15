@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Covoit - Messages</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .chat-layout { display: grid; grid-template-columns: 320px 1fr; height: calc(100vh - 84px); overflow: hidden; background: var(--bg-surface); }
+    
+    .chat-sidebar { border-right: 1px solid var(--border-light); display: flex; flex-direction: column; background: #F8FAFC; overflow-y: auto; }
+    .contact-item { padding: 20px; display: flex; gap: 12px; align-items: center; cursor: pointer; border-bottom: 1px solid var(--border-light); transition: background 0.2s; }
+    .contact-item:hover { background: #F1F5F9; }
+    .contact-item.active { background: #fff; border-left: 4px solid var(--primary); }
+    .contact-name { font-weight: 700; font-size: 15px; color: var(--text-main); }
+    .contact-last { font-size: 13px; color: var(--text-muted); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+    .chat-main { display: flex; flex-direction: column; background: #fff; position: relative; }
+    .chat-header { padding: 16px 24px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: 12px; }
+    
+    .messages-area { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fff; }
+    .msg-group { display: flex; flex-direction: column; max-width: 70%; padding: 12px 16px; border-radius: 12px; font-size: 14px; position: relative; line-height: 1.5; }
+    .msg-received { align-self: flex-start; background: #F3F4F6; color: var(--text-main); border-bottom-left-radius: 2px; }
+    .msg-sent { align-self: flex-end; background: var(--primary); color: #fff; border-bottom-right-radius: 2px; }
+    .msg-time { font-size: 10px; opacity: 0.7; margin-top: 4px; display: block; }
+    
+    .chat-input-area { padding: 20px 24px; border-top: 1px solid var(--border-light); display: flex; gap: 12px; background: #fff; }
+    .chat-input { flex: 1; background: #F1F5F9; border: 1px solid transparent; border-radius: 12px; padding: 12px 20px; font-size: 14px; outline: none; }
+    .chat-input:focus { border-color: var(--primary); background: #fff; }
+
+    .empty-chat { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); }
+  </style>
+</head>
+<body style="overflow:hidden;">
+
+  <nav class="navbar" style="border-bottom: 1px solid var(--border-light);">
+    <a href="index.html" class="brand">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 2L2 22h20L12 2zm0 4.83l6.5 13.17H5.5L12 6.83z"/></svg> Covoit
+    </a>
+    <div class="nav-links">
+        <a href="search.html" class="nav-link">Rechercher</a>
+        <a href="publish.html" class="nav-link">Proposer</a>
+        <a href="dashboard.html" class="nav-link">Tableau de bord</a>
+    </div>
+    <div class="nav-actions" id="n-user">
+        <a href="wallet.html" class="badge badge-success" id="u-bal">...</a>
+        <a href="dashboard.html"><img src="" class="avatar" id="u-avatar"></a>
+    </div>
+  </nav>
+
+  <div class="chat-layout">
+    <aside class="chat-sidebar" id="contacts-list">
+       <!-- Contacts -->
+    </aside>
+
+    <main class="chat-main" id="chat-window">
+        <div class="empty-chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="64" height="64" opacity="0.1" style="margin-bottom:16px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <p>Sélectionnez une conversation</p>
+        </div>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    const u = window.API.getCurrentUser();
+    let currentContactId = null;
+
+    function renderContacts() {
+        const msgs = DB.get('cov_messages') || [];
+        const contacts = {};
+        
+        msgs.forEach(m => {
+            if(m.senderId === u.id) contacts[m.receiverId] = true;
+            if(m.receiverId === u.id) contacts[m.senderId] = true;
+        });
+
+        const users = DB.get('cov_users') || [];
+        const contactIds = Object.keys(contacts).map(Number);
+        const container = document.getElementById('contacts-list');
+        
+        if(contactIds.length === 0) {
+            container.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted);">Aucune conversation</div>`;
+            return;
+        }
+
+        container.innerHTML = contactIds.map(cid => {
+            const contactUser = users.find(x => x.id === cid) || { name: 'Utilisateur' };
+            const lastMsg = msgs.filter(m => (m.senderId === u.id && m.receiverId === cid) || (m.senderId === cid && m.receiverId === u.id)).pop();
+            return `
+            <div class="contact-item ${currentContactId === cid ? 'active' : ''}" onclick="openChat(${cid})">
+                <img src="https://ui-avatars.com/api/?name=${contactUser.name.replace(' ','+')}" class="avatar" style="width:48px; height:48px;">
+                <div class="flex-col" style="flex:1; min-width:0;">
+                    <div class="contact-name">${contactUser.name}</div>
+                    <div class="contact-last">${lastMsg ? lastMsg.content : '...'}</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function openChat(id) {
+        currentContactId = id;
+        const users = DB.get('cov_users') || [];
+        const contact = users.find(x => x.id === id) || { name: '...' };
+        
+        document.getElementById('chat-window').innerHTML = `
+            <div class="chat-header">
+                <img src="https://ui-avatars.com/api/?name=${contact.name.replace(' ','+')}" class="avatar" style="width:40px; height:40px;">
+                <div class="flex-col">
+                    <span style="font-weight:700; font-size:16px;">${contact.name}</span>
+                    <span style="font-size:12px; color:var(--success);">En ligne</span>
+                </div>
+            </div>
+            <div class="messages-area" id="msg-area"></div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chat-msg" placeholder="Tapez votre message..." onkeydown="if(event.key === 'Enter') sendMsg()">
+                <button class="btn btn-primary" onclick="sendMsg()" style="width:48px; border-radius:12px; padding:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="margin-right:0;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+            </div>
+        `;
+        renderContacts();
+        renderMessages();
+    }
+
+    function renderMessages() {
+        if(!currentContactId) return;
+        const msgs = window.API.getMessages(currentContactId);
+        const area = document.getElementById('msg-area');
+        area.innerHTML = msgs.map(m => {
+            const time = new Date(m.sentAt).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+            const isMe = m.senderId === u.id;
+            return `<div class="msg-group ${isMe ? 'msg-sent' : 'msg-received'}">${m.content}<span class="msg-time">${time}</span></div>`;
+        }).join('');
+        area.scrollTop = area.scrollHeight;
+    }
+
+    async function sendMsg() {
+        const input = document.getElementById('chat-msg');
+        const content = input.value.trim();
+        if(!content || !currentContactId) return;
+        
+        const res = await window.API.sendMessage(currentContactId, content);
+        if(res.success) {
+            input.value = '';
+            renderMessages();
+            renderContacts();
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if(!u) return window.location.href = 'auth.html';
+        renderContacts();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UberTounsi — Covoiturage Tunisie</title>
+  <meta name="description" content="Plateforme de covoiturage en Tunisie. Trouvez et partagez des trajets facilement.">
+  <meta name="theme-color" content="#c3f832">
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/additions.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- ═══════ SIDEBAR ═══════ -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo" onclick="window.location.href='welcome.html'" style="cursor: pointer;">
+        <img src="img/branding/logo.png" alt="UberTounsi Logo" style="height: 92px; object-fit: contain;">
+      </div>
+      <nav class="sidebar-nav" id="sidebar-nav"></nav>
+      <div class="sidebar-bottom" id="sidebar-bottom"></div>
+    </aside>
+
+    <!-- ═══════ CONTENT PANEL ═══════ -->
+    <main class="panel" id="panel">
+
+      <!-- VIEW: Trips -->
+      <div class="panel-view active" id="view-trips"></div>
+
+      <!-- VIEW: Search -->
+      <div class="panel-view" id="view-search"></div>
+
+      <!-- VIEW: Publish -->
+      <div class="panel-view" id="view-publish"></div>
+
+      <!-- VIEW: Bookings -->
+      <div class="panel-view" id="view-bookings"></div>
+
+      <!-- VIEW: Wallet -->
+      <div class="panel-view" id="view-wallet"></div>
+
+      <!-- VIEW: Notifications -->
+      <div class="panel-view" id="view-notifications"></div>
+
+      <!-- VIEW: Messages -->
+      <div class="panel-view" id="view-messages"></div>
+
+      <!-- VIEW: Profile -->
+      <!-- VIEW: Profile -->
+      <div class="panel-view" id="view-profile"></div>
+
+      <!-- VIEW: Admin -->
+      <div class="panel-view" id="view-admin"></div>
+
+    </main>
+
+    <!-- ═══════ PANEL RESIZE HANDLE ═══════ -->
+    <div id="panel-resizer" class="panel-resizer" title="Redimensionner"></div>
+
+    <!-- ═══════ MAP ═══════ -->
+    <section class="map-area">
+      <div id="map"></div>
+      <div id="money-pill" class="money-pill" onclick="Router.navigate('wallet')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <rect x="2" y="4" width="20" height="16" rx="2" />
+          <circle cx="18" cy="12" r="2" />
+        </svg>
+        <span id="money-val">0.00 TND</span>
+      </div>
+      <!-- Map search overlay -->
+      <div class="map-search-overlay" id="map-search-overlay">
+        <input type="text" id="map-search-input" placeholder="Rechercher une ville..." />
+        <button class="go-btn" onclick="mapSearchGo()">GO</button>
+      </div>
+      <div class="map-controls" id="map-controls">
+        <button class="map-ctrl-btn" id="map-search-btn" title="Rechercher">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+        </button>
+        <button class="map-ctrl-btn" id="map-center-btn" title="Ma position">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+          </svg>
+        </button>
+        <button class="map-ctrl-btn" id="map-satellite-btn" title="Satellite">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" />
+            <path d="M12 6a6 6 0 1 0 6 6 6 6 0 0 0-6-6zm0 10a4 4 0 1 1 4-4 4 4 0 0 1-4 4z" />
+          </svg>
+        </button>
+      </div>
+      <div class="detail-bar" id="detail-bar"></div>
+    </section>
+
+  </div>
+
+  <!-- ═══════ BOOKING MODAL ═══════ -->
+  <div class="modal-overlay" id="book-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="document.getElementById('book-modal').classList.remove('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+      <div id="book-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ═══════ ADD FUNDS MODAL ═══════ -->
+  <div class="modal-overlay" id="funds-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="document.getElementById('funds-modal').classList.remove('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+      <div id="funds-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ═══════ VERIFY CODE MODAL ═══════ -->
+  <div class="modal-overlay" id="verify-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="document.getElementById('verify-modal').classList.remove('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+      <div id="verify-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Reusable confirm dialog -->
+  <div class="modal-overlay" id="confirm-modal">
+    <div class="modal-content" style="max-width:380px;text-align:center;padding:32px 28px">
+      <div id="confirm-modal-icon" style="font-size:40px;margin-bottom:16px"></div>
+      <h2 id="confirm-modal-title" style="font-size:18px;font-weight:800;margin-bottom:8px"></h2>
+      <p id="confirm-modal-body" style="font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:24px"></p>
+      <div style="display:flex;gap:10px">
+        <button id="confirm-modal-cancel" class="btn btn-outline btn-full" onclick="document.getElementById('confirm-modal').classList.remove('open')">Annuler</button>
+        <button id="confirm-modal-ok" class="btn btn-full"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ GENERIC MODAL (chat, counter-offer, disputes, admin) ═══════ -->
+  <div class="modal-overlay" id="generic-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="document.getElementById('generic-modal').classList.remove('open');clearInterval(window._chatPollInterval)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+      <div id="generic-modal-body"></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/api/api.auth.js"></script>
+  <script src="js/api/api.trips.js"></script>
+  <script src="js/api/api.bookings.js"></script>
+  <script src="js/api/api.wallet.js"></script>
+  <script src="js/api/api.messages.js"></script>
+  <script src="js/api/api.users.js"></script>
+  <script src="js/api/api.ratings.js"></script>
+  <script src="js/api/api.notifications.js"></script>
+  <script src="js/api/api.searches.js"></script>
+  <script src="js/api/api.cars.js"></script>
+  <script src="js/api/api.admin.js"></script>
+  <script src="js/api/api.stats.js"></script>
+  <script src="js/api/api.reports.js"></script>
+  <script src="js/api/api.features.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/views/ui.trips.js"></script>
+  <script src="js/views/ui.search.js"></script>
+  <script src="js/views/ui.publish.js"></script>
+  <script src="js/views/ui.bookings.js"></script>
+  <script src="js/views/ui.wallet.js"></script>
+  <script src="js/views/ui.notifications.js"></script>
+  <script src="js/views/ui.messages.js"></script>
+  <script src="js/views/ui.profile.js"></script>
+  <script src="js/views/ui.admin.js"></script>
+  <script src="js/views/ui.chat.js"></script>
+  <script src="js/views/ui.map_controls.js"></script>
+  <script src="js/modals.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    (function () {
+      const STORAGE_KEY = 'cov_panel_w';
+      const MIN_W = 300;
+      const MAX_W = 700;
+      const DEFAULT_W = 440;
+      const app = document.querySelector('.app');
+      const resizer = document.getElementById('panel-resizer');
+      let currentW = DEFAULT_W;
+
+      // Full-screen drag shield — sits above Leaflet during drag
+      const shield = document.createElement('div');
+      shield.style.cssText = 'position:fixed;inset:0;z-index:99999;display:none;cursor:col-resize;';
+      document.body.appendChild(shield);
+
+      function applyWidth(w) {
+        currentW = w;
+        app.style.gridTemplateColumns = '80px ' + w + 'px 4px 1fr';
+      }
+
+      // Restore saved width on load
+      const saved = parseInt(localStorage.getItem(STORAGE_KEY));
+      if (saved >= MIN_W && saved <= MAX_W) applyWidth(saved);
+
+      resizer.addEventListener('mousedown', function (e) {
+        e.preventDefault();
+        const startX = e.clientX;
+        const startW = currentW;
+        resizer.classList.add('dragging');
+        shield.style.display = 'block';
+
+        function onMove(e) {
+          applyWidth(Math.min(MAX_W, Math.max(MIN_W, startW + e.clientX - startX)));
+        }
+
+        function onUp() {
+          localStorage.setItem(STORAGE_KEY, currentW);
+          resizer.classList.remove('dragging');
+          shield.style.display = 'none';
+          if (window.map) window.map.invalidateSize();
+          shield.removeEventListener('mousemove', onMove);
+          shield.removeEventListener('mouseup', onUp);
+        }
+
+        shield.addEventListener('mousemove', onMove);
+        shield.addEventListener('mouseup', onUp);
+      });
+
+      resizer.addEventListener('dblclick', function () {
+        applyWidth(DEFAULT_W);
+        localStorage.removeItem(STORAGE_KEY);
+        if (window.map) window.map.invalidateSize();
+      });
+    })();
+  </script>
+
+</body>
+
+</html>

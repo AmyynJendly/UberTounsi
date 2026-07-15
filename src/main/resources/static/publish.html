@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Covoit - Proposer un trajet</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .wizard-container { max-width: 600px; margin: 48px auto; }
+    .step-indicator { display: flex; align-items: center; justify-content: center; margin-bottom: 48px; gap: 16px; font-weight: 700; color: var(--text-faint); }
+    .step-dot { width: 32px; height: 32px; border-radius: 50%; background: var(--border-light); display: flex; align-items: center; justify-content: center; color: var(--text-main); transition: all var(--transition); }
+    .step-dot.active { background: var(--primary); color: #FFF; box-shadow: 0 0 0 4px var(--primary-glow); }
+    .step-line { height: 2px; width: 40px; background: var(--border-light); transition: background var(--transition); }
+    .step-line.active { background: var(--primary); }
+
+    .step-panel { display: none; animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .step-panel.active { display: block; }
+
+    .wizard-card { background: var(--bg-surface); border-radius: var(--radius-lg); padding: 40px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-light); }
+  </style>
+</head>
+<body>
+
+  <!-- THE FLAWLESS NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="brand">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 2L2 22h20L12 2zm0 4.83l6.5 13.17H5.5L12 6.83z"/></svg> Covoit
+    </a>
+    <div class="nav-links">
+      <a href="search.html" class="nav-link">Rechercher</a>
+      <a href="publish.html" class="nav-link active">Proposer un trajet</a>
+      <a href="dashboard.html" class="nav-link" id="nav-books" style="display:none;">Mes réservations</a>
+    </div>
+    <div class="nav-actions" id="n-auth" style="display:none;">
+      <a href="auth.html" class="btn btn-secondary" style="border:none; box-shadow:none; font-weight:700;">Se connecter</a>
+      <a href="auth.html" class="btn btn-primary">Inscription</a>
+    </div>
+    <div class="nav-actions" id="n-user" style="display:none;">
+      <a href="wallet.html" class="badge badge-success" style="font-size:14px; padding:6px 16px;" id="u-bal">...</a>
+      <a href="dashboard.html"><img src="" class="avatar" id="u-avatar"></a>
+    </div>
+  </nav>
+
+  <main class="container wizard-container">
+     
+     <div class="step-indicator">
+         <div class="step-dot active" id="dot-1">1</div>
+         <div class="step-line" id="line-1"></div>
+         <div class="step-dot" id="dot-2">2</div>
+         <div class="step-line" id="line-2"></div>
+         <div class="step-dot" id="dot-3">3</div>
+     </div>
+
+     <div class="wizard-card">
+         <form id="wizard-form">
+         
+         <!-- STEP 1: ITINERARY -->
+         <div class="step-panel active" id="step-1">
+             <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 24px; text-align: center;">D'où partez-vous ?</h2>
+             
+             <div class="form-group">
+                 <label>Ville de départ</label>
+                 <div class="input-wrapper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+                    <input type="text" id="w-dep" class="input-base input-with-icon" placeholder="Ex: Tunis" required>
+                 </div>
+             </div>
+             
+             <div class="form-group">
+                 <label>Ville d'arrivée</label>
+                 <div class="input-wrapper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+                    <input type="text" id="w-arr" class="input-base input-with-icon" placeholder="Ex: Sousse" required>
+                 </div>
+             </div>
+
+             <div class="flex gap-4">
+                 <div class="form-group" style="flex:1;">
+                     <label>Date de départ</label>
+                     <input type="date" id="w-date" class="input-base" required>
+                 </div>
+                 <div class="form-group" style="flex:1;">
+                     <label>Heure de départ</label>
+                     <input type="time" id="w-depTime" class="input-base" value="08:00" required>
+                 </div>
+             </div>
+
+             <button type="button" class="btn btn-primary" style="width:100%; height:56px; font-size:16px;" onclick="next(2)">Continuer vers les détails <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="margin-left:8px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
+         </div>
+
+         <!-- STEP 2: DETAILS -->
+         <div class="step-panel" id="step-2">
+             <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 24px; text-align: center;">Détails du voyage</h2>
+             
+             <div class="form-group" style="margin-bottom: 24px;">
+                 <label>Sélectionnez votre véhicule</label>
+                 <select id="w-carId" class="input-base" required>
+                    <option value="">-- Choisir un véhicule --</option>
+                 </select>
+                 <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Vous pouvez ajouter des véhicules dans votre <a href="profile.html" style="color:var(--primary); font-weight:600;">Profil</a>.</p>
+             </div>
+
+             <div class="form-group" style="margin-bottom: 32px;">
+                 <label>Prix par siège (TND)</label>
+                 <div class="stepper" style="margin: 8px auto 0 auto; width: 180px;">
+                    <button type="button" class="step-btn" onclick="let i=document.getElementById('w-price'); i.value=Math.max(1, parseInt(i.value)-1)">-</button>
+                    <input type="number" id="w-price" class="step-val" style="border:none; text-align:center; background:transparent; width: 80px;" value="15" min="1" required readonly>
+                    <button type="button" class="step-btn" onclick="let i=document.getElementById('w-price'); i.value=parseInt(i.value)+1">+</button>
+                 </div>
+             </div>
+
+             <div class="form-group" style="margin-bottom: 32px;">
+                 <label>Places disponibles</label>
+                 <div class="stepper" style="margin: 8px auto 0 auto; width: 180px;">
+                    <button type="button" class="step-btn" onclick="let i=document.getElementById('w-seats'); i.value=Math.max(1, parseInt(i.value)-1)">-</button>
+                    <input type="number" id="w-seats" class="step-val" style="border:none; text-align:center; background:transparent; width: 80px;" value="3" min="1" max="8" required readonly>
+                    <button type="button" class="step-btn" onclick="let i=document.getElementById('w-seats'); i.value=Math.min(8, parseInt(i.value)+1)">+</button>
+                 </div>
+             </div>
+
+             <div class="form-group" style="margin-bottom: 24px;">
+                 <label>Commentaires / Détours éventuels</label>
+                 <textarea id="w-comment" class="input-base" style="min-height:80px; padding:12px; font-family:inherit;" placeholder="Ex: Je peux passer par l'autoroute ou m'arrêter à Grombalia..."></textarea>
+             </div>
+
+             <div class="form-group" style="margin-bottom: 24px;">
+                <label class="flex items-center gap-3" style="cursor:pointer;">
+                    <input type="checkbox" id="w-flexible" style="width:20px; height:20px; accent-color:var(--primary);">
+                    <span style="font-weight:700;">Flexibilité (Ramassage de passagers possible)</span>
+                </label>
+             </div>
+
+             <div class="form-group" style="margin-bottom: 32px;">
+                 <label>Préférences de voyage</label>
+                 <div class="pref-grid">
+                     <div class="pref-pill" data-pref="ac" onclick="this.classList.toggle('active')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path><circle cx="12" cy="12" r="4"></circle></svg>
+                        <span>Climatisation</span>
+                     </div>
+                     <div class="pref-pill" data-pref="pets" onclick="this.classList.toggle('active')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l-5 5V9a5 5 0 0 1 10 0v10l-5-5"></path><circle cx="16" cy="5" r="2"></circle></svg>
+                        <span>Animaux</span>
+                     </div>
+                     <div class="pref-pill" data-pref="smoking" onclick="this.classList.toggle('active')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 12c0-2.5-2-4.5-4.5-4.5h-9a4.5 4.5 0 1 0 4.5 4.5"></path><path d="M18 12h4"></path><path d="M21 7c0-2-1-3-2-3"></path></svg>
+                        <span>Fumeur</span>
+                     </div>
+                     <div class="pref-pill" data-pref="music" onclick="this.classList.toggle('active')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                        <span>Musique</span>
+                     </div>
+                 </div>
+             </div>
+
+             <div class="flex gap-4">
+                 <button type="button" class="btn btn-secondary" style="flex:1; height:56px; font-size:16px;" onclick="next(1)">Retour</button>
+                 <button type="button" class="btn btn-primary" style="flex:1; height:56px; font-size:16px;" id="btn-final-publish" onclick="next(3)">Valider le trajet</button>
+             </div>
+         </div>
+
+         <!-- STEP 3: SUCCESS -->
+         <div class="step-panel" id="step-3" style="text-align:center;">
+             <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" style="width:100px; height:100px; margin:0 auto 24px auto;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+             <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 16px;">Trajet Publié !</h2>
+             <p style="color:var(--text-muted); margin-bottom: 40px; font-size:16px;">Les passagers peuvent désormais rechercher et réserver des sièges sur votre voiture. Vous serez notifié par chaque réservation.</p>
+             <button type="button" class="btn btn-primary" style="width:100%; height:56px; font-size:16px;" onclick="window.location.href='dashboard.html'">Mon tableau de bord</button>
+         </div>
+
+         <!-- END FORMS -->
+         <button type="submit" id="hidden-submit" style="display:none;"></button>
+         </form>
+     </div>
+
+  </main>
+
+  <script src="js/app.js"></script>
+  <script>
+    const u = window.API.getCurrentUser();
+    
+    function next(n) {
+        if(n === 2) {
+            if(!document.getElementById('w-dep').value || !document.getElementById('w-arr').value) {
+                return Toast.show('Veuillez remplir le départ et l\'arrivée.', 'error');
+            }
+        }
+        if(n === 3) {
+            if(!document.getElementById('w-carId').value) {
+                return Toast.show('Veuillez sélectionner un véhicule.', 'error');
+            }
+            publish();
+            return;
+        }
+        
+        document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(`step-${n}`).classList.add('active');
+        
+        // Progress UI
+        if(n >= 2) { document.getElementById('dot-2').classList.add('active'); document.getElementById('line-1').classList.add('active'); }
+        else { document.getElementById('dot-2').classList.remove('active'); document.getElementById('line-1').classList.remove('active'); }
+        if(n >= 3) { document.getElementById('dot-3').classList.add('active'); document.getElementById('line-2').classList.add('active'); }
+        else { document.getElementById('dot-3').classList.remove('active'); document.getElementById('line-2').classList.remove('active'); }
+    }
+
+    async function publish() {
+        const btn = document.getElementById('btn-final-publish');
+        btn.classList.add('loading');
+        
+        const prefs = {};
+        document.querySelectorAll('.pref-pill').forEach(p => {
+            prefs[p.dataset.pref] = p.classList.contains('active');
+        });
+
+        const res = await window.API.publishTrip({
+            dep: document.getElementById('w-dep').value,
+            arr: document.getElementById('w-arr').value,
+            date: document.getElementById('w-date').value,
+            depTime: document.getElementById('w-depTime').value,
+            price: document.getElementById('w-price').value,
+            seats: document.getElementById('w-seats').value,
+            carId: document.getElementById('w-carId').value,
+            comment: document.getElementById('w-comment').value,
+            flexible: document.getElementById('w-flexible').checked,
+            prefs: prefs
+        });
+        
+        btn.classList.remove('loading');
+        
+        if(res.error) {
+            Toast.show(res.error, 'error');
+        } else {
+            document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('step-3').classList.add('active');
+            document.getElementById('dot-3').classList.add('active');
+            document.getElementById('line-2').classList.add('active');
+            Toast.show('Trajet publié avec succès !', 'success');
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if(!u) return window.location.href = 'auth.html';
+        
+        // Default date to today
+        document.getElementById('w-date').value = new Date().toISOString().split('T')[0];
+        
+        // Populate cars
+        const cars = window.API.getCars();
+        const select = document.getElementById('w-carId');
+        if(cars.length === 0) {
+            Toast.show('Vous devez ajouter un véhicule avant de publier.', 'error');
+            setTimeout(() => window.location.href = 'profile.html', 2000);
+        } else {
+            cars.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.innerText = `${c.brand} ${c.model} (${c.plate})`;
+                select.appendChild(opt);
+            });
+        }
+    });
+  </script>
+</body>
+</html>

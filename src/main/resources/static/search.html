@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Covoit - Rechercher</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .search-layout { display: grid; grid-template-columns: 280px 1fr; gap: 40px; margin-top: 40px; }
+    
+    .filter-panel { background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 24px; height: fit-content; position: sticky; top: 100px; box-shadow: var(--shadow-sm); }
+    .filter-group { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border-light); }
+    .filter-group:last-child { margin: 0; padding: 0; border: none; }
+    .filter-group h3 { font-size: 14px; text-transform: uppercase; color: var(--text-faint); letter-spacing: 0.05em; margin-bottom: 16px; }
+
+    .trip-card { background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 32px; transition: all var(--transition); display: flex; flex-direction: column; gap: 24px; cursor: pointer; position: relative; overflow: hidden; }
+    .trip-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: rgba(37, 99, 235, 0.3); }
+    .trip-card.sold-out { opacity: 0.6; filter: grayscale(1); cursor: not-allowed; }
+    .trip-card.sold-out:hover { transform: none; box-shadow: none; border-color: var(--border-light); }
+    
+    .tc-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .tc-route { flex: 1; display: flex; flex-direction: column; gap: 16px; position: relative; }
+    .route-node { display: flex; align-items: center; gap: 20px; }
+    .r-time { font-size: 22px; font-weight: 800; width: 70px; color: var(--text-main); }
+    .r-dot { width: 16px; height: 16px; border-radius: 50%; border: 3px solid var(--text-main); background: var(--bg-surface); z-index: 2; }
+    .r-line { position: absolute; left: 97px; top: 16px; width: 2px; height: calc(100% - 32px); background: var(--border-light); z-index: 1; }
+    .r-city { font-size: 22px; font-weight: 700; color: var(--text-main); }
+    .dist-badge { font-size: 13px; font-weight: 800; color: var(--primary); background: var(--primary-glow); padding: 4px 12px; border-radius: 99px; border: 1px solid rgba(37, 99, 235, 0.1); }
+
+    .tc-price { text-align: right; }
+    .tc-amount { font-size: 32px; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 6px; }
+    .tc-seats { font-size: 14px; font-weight: 700; color: var(--success); }
+
+    .tc-footer { border-top: 1px solid var(--border-light); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; }
+    .driver-info { display: flex; align-items: center; gap: 16px; }
+    
+    /* MODAL EXTRAS */
+    .m-ticket { background: #F8FAFC; border: 1px dashed var(--border-light); border-radius: var(--radius-md); padding: 16px; margin: 24px 0; }
+    .m-total { font-size: 24px; font-weight: 800; color: var(--primary); }
+  </style>
+</head>
+<body>
+
+  <!-- THE FLAWLESS NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="brand">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 2L2 22h20L12 2zm0 4.83l6.5 13.17H5.5L12 6.83z"/></svg> Covoit
+    </a>
+    <div class="nav-links">
+      <a href="search.html" class="nav-link active">Rechercher</a>
+      <a href="publish.html" class="nav-link">Proposer un trajet</a>
+      <a href="dashboard.html" class="nav-link" id="nav-books" style="display:none;">Mes réservations</a>
+    </div>
+    <div class="nav-actions" id="n-auth" style="display:none;">
+      <a href="auth.html" class="btn btn-secondary" style="border:none; box-shadow:none; font-weight:700;">Se connecter</a>
+      <a href="auth.html" class="btn btn-primary">Inscription</a>
+    </div>
+    <div class="nav-actions" id="n-user" style="display:none;">
+        <!-- Injected by app.js: Wallet and Avatar -->
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="search-layout">
+        
+      <!-- FILTERS PANEL -->
+      <aside class="filter-panel">
+          <div class="filter-group">
+              <h3>Trier par</h3>
+              <div class="form-group" style="margin:0;">
+                  <select id="f-sort" class="input-base" onchange="renderTrips()">
+                      <option value="time">Heure de départ (Tôt)</option>
+                      <option value="price_asc">Prix le plus bas</option>
+                  </select>
+              </div>
+          </div>
+          <div class="filter-group">
+              <h3>Départ</h3>
+              <input type="text" id="f-dep" class="input-base" placeholder="Ville" oninput="renderTrips()">
+          </div>
+          <div class="filter-group">
+              <h3>Arrivée</h3>
+              <input type="text" id="f-arr" class="input-base" placeholder="Ville" oninput="renderTrips()" style="height:42px;">
+          </div>
+          <div class="filter-group">
+              <h3>Préférences</h3>
+              <div class="flex-col" style="gap:12px;">
+                  <label class="flex items-center gap-2" style="font-size:13px; font-weight:600; cursor:pointer;"><input type="checkbox" id="f-ac" onchange="renderTrips()"> Climatisation ❄️</label>
+                  <label class="flex items-center gap-2" style="font-size:13px; font-weight:600; cursor:pointer;"><input type="checkbox" id="f-pets" onchange="renderTrips()"> Animaux 🐾</label>
+                  <label class="flex items-center gap-2" style="font-size:13px; font-weight:600; cursor:pointer;"><input type="checkbox" id="f-music" onchange="renderTrips()"> Musique 🎵</label>
+                  <label class="flex items-center gap-2" style="font-size:13px; font-weight:600; cursor:pointer;"><input type="checkbox" id="f-nosmoke" onchange="renderTrips()"> Non-fumeur 🚭</label>
+              </div>
+          </div>
+      </aside>
+
+      <!-- RESULTS -->
+      <div>
+          <div class="flex items-center justify-between" style="margin-bottom: 24px;">
+              <h1 style="font-size:32px; font-weight:800; letter-spacing:-0.02em;">Trajets disponibles</h1>
+              <span id="res-count" class="badge badge-primary">0 résultat</span>
+          </div>
+          <div id="results" class="flex-col gap-4" style="padding-bottom: 96px;"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- PERFECT BOOKING MODAL -->
+  <div class="modal-overlay" id="modal-book">
+    <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+      <button class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      
+      <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 24px;">Détails du trajet</h2>
+      
+      <div id="m-route" class="flex-col gap-2" style="margin-bottom: 24px;"></div>
+      
+      <div id="m-advanced" class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+         <div class="card" style="padding: 16px;">
+            <h4 style="font-size: 11px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px;">Véhicule</h4>
+            <div id="m-car-info" style="font-size: 14px; font-weight: 600;">...</div>
+         </div>
+         <div class="card" style="padding: 16px;">
+            <h4 style="font-size: 11px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px;">Préférences</h4>
+            <div id="m-prefs" class="flex gap-2">...</div>
+         </div>
+      </div>
+
+      <div class="m-ticket">
+         <div class="flex justify-between items-center" style="margin-bottom:12px;">
+             <span style="font-weight:600;">Places requises</span>
+             <div class="stepper">
+                <button class="step-btn" onclick="step(-1)">-</button>
+                <div class="step-val" id="m-qty">1</div>
+                <button class="step-btn" id="btn-plus" onclick="step(1)">+</button>
+             </div>
+         </div>
+         <div class="divider" style="margin:12px 0;"></div>
+         <div class="flex justify-between items-center">
+             <span style="font-weight:600;">Total à payer</span>
+             <span class="m-total" id="m-total">...</span>
+         </div>
+      </div>
+
+      <div class="flex justify-between items-center" style="background:#F3F4F6; padding:16px; border-radius:12px; margin-bottom: 24px;">
+          <div class="flex items-center gap-2">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="20" height="20"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+              <span style="font-weight:700; font-size:15px;" id="m-bal">...</span>
+          </div>
+          <div class="flex-col" style="text-align:right;">
+             <span style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Solde Restant</span>
+             <span style="font-weight:800; font-size:16px;" id="m-rem">...</span>
+          </div>
+      </div>
+
+      <div class="flex gap-4">
+         <button onclick="contactDriver()" class="btn btn-secondary" style="flex: 1; height: 52px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="margin-right:8px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>Message</button>
+         <button id="btn-confirm" class="btn btn-primary" style="flex: 2; height: 52px; font-size: 16px;"><div class="spinner"></div>Réserver maintenant</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const u = window.API.getCurrentUser();
+        const params = new URLSearchParams(window.location.search);
+        if(params.get('dep')) document.getElementById('f-dep').value = params.get('dep');
+        if(params.get('arr')) document.getElementById('f-arr').value = params.get('arr');
+        renderTrips();
+    });
+
+    async function renderTrips() {
+        const dep = (document.getElementById('f-dep').value || "").toLowerCase();
+        const arr = (document.getElementById('f-arr').value || "").toLowerCase();
+        const sort = document.getElementById('f-sort').value;
+        const ac = document.getElementById('f-ac').checked;
+        const pets = document.getElementById('f-pets').checked;
+        const music = document.getElementById('f-music').checked;
+        const nosmoke = document.getElementById('f-nosmoke').checked;
+        const container = document.getElementById('results');
+        if(!container) return;
+        
+        const tripsRaw = DB.get('cov_trips') || [];
+        let res = tripsRaw.filter(t => (t.dep||"").toLowerCase().includes(dep) && (t.arr||"").toLowerCase().includes(arr));
+        
+        if(ac) res = res.filter(t => t.prefs && t.prefs.ac);
+        if(pets) res = res.filter(t => t.prefs && t.prefs.pets);
+        if(music) res = res.filter(t => t.prefs && t.prefs.music);
+        if(nosmoke) res = res.filter(t => t.prefs && !t.prefs.smoking);
+
+        if (sort === 'price_asc') res.sort((a,b) => (a.price||0) - (b.price||0));
+        else res.sort((a,b) => (a.depTime||"").localeCompare(b.depTime||""));
+
+        document.getElementById('res-count').innerText = `${res.length} résultat${res.length > 1 ? 's' : ''}`;
+        
+        if(res.length === 0) {
+            container.innerHTML = `<div class="card" style="padding:48px; text-align:center; box-shadow:none; border: 2px dashed var(--border-light);"><span style="font-size:48px;">📍</span><h3 style="margin-top:16px; font-size:18px;">Aucun trajet trouvé</h3><p style="color:var(--text-muted);">Modifiez vos filtres.</p></div>`;
+            return;
+        }
+
+        let html = '';
+        res.forEach(t => {
+            const tripDate = t.date ? new Date(t.date).toLocaleDateString('fr-FR', {day:'numeric', month:'short'}) : 'A venir';
+            const dist = window.API.getDistance(t.dep, t.arr);
+            html += `
+            <article class="trip-card ${Number(t.seats || 0) === 0 ? 'sold-out' : 'card-hover'}" ${Number(t.seats || 0) > 0 ? `onclick="bookModal(${t.id})"` : ''}>
+               <div class="tc-header">
+                  <div class="tc-route">
+                     <div class="route-node">
+                        <span class="r-time">${t.depTime || '00:00'}</span>
+                        <div class="r-dot"></div>
+                        <span class="r-city">${t.dep || '?'}</span>
+                        <span style="font-size:11px; color:var(--primary); font-weight:800; margin-left:8px; background:var(--primary-glow); padding:2px 8px; border-radius:4px;">${tripDate}</span>
+                     </div>
+                     <div class="r-line"></div>
+                     <div class="route-node" style="margin-top:4px;">
+                        <span class="r-time" style="color:var(--text-faint); font-weight:500;">Arrivée</span>
+                        <div class="r-dot" style="border-color:var(--primary);"></div>
+                        <span class="r-city">${t.arr || '?'}</span>
+                        <span class="dist-badge" style="margin-left:auto;">${dist} km</span>
+                     </div>
+                  </div>
+                  <div class="tc-price">
+                     <div class="tc-amount">${Number(t.price || 0).toFixed(2)}</div>
+                     <div class="tc-seats" style="color:var(--success); font-weight:700;">${t.seats || 0} places</div>
+                  </div>
+               </div>
+               <div class="tc-footer">
+                  <div class="driver-info">
+                     <img src="${t.avatar || ''}" class="avatar" style="width:40px; height:40px;">
+                     <div class="flex-col">
+                        <span style="font-weight:700; font-size:15px; color:var(--text-main);">${t.driver || 'Chauffeur'}</span>
+                        <div class="flex gap-2 items-center">
+                           <div style="color:var(--warning); font-size:12px; font-weight:800; display:flex; align-items:center;">
+                               <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12" style="margin-right:2px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                               ${(t.rating || 5.0).toFixed(1)}
+                           </div>
+                           ${t.flexible ? '<span class="badge badge-success" style="font-size:9px; height:18px;">Flexibilité</span>' : ''}
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </article>`;
+        });
+        container.innerHTML = html;
+    }
+
+    let curTrip = null, curQty = 1;
+    function bookModal(id) {
+        const u = window.API.getCurrentUser();
+        if(!u) return window.location.href = 'auth.html';
+        
+        curTrip = (DB.get('cov_trips') || []).find(t => t.id === id);
+        if(!curTrip) return;
+        curQty = 1;
+
+        const dateStr = curTrip.date ? new Date(curTrip.date).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'}) : 'Date à préciser';
+        document.getElementById('m-route').innerHTML = `
+            <div class="flex items-center justify-between">
+                <h3 style="font-size:22px; font-weight:800; color:var(--text-main);">${curTrip.dep} → ${curTrip.arr}</h3>
+                ${curTrip.flexible ? '<span class="badge badge-success" style="font-size:12px; padding:6px 12px; box-shadow:0 0 10px rgba(16,185,129,0.2);">CHAUFFEUR FLEXIBLE</span>' : ''}
+            </div>
+            <p style="font-size:14px; color:var(--text-muted); font-weight:500; margin-top:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:middle; margin-right:4px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                ${dateStr} • <b style="color:var(--primary);">${curTrip.depTime}</b> • <b>${window.API.getDistance(curTrip.dep, curTrip.arr)} km</b>
+            </p>
+        `;
+
+        // Car Details
+        const cars = DB.get('cov_cars') || [];
+        const car = cars.find(c => c.id === curTrip.carId);
+        document.getElementById('m-car-info').innerHTML = car ? 
+            `${car.brand} ${car.model} <br><span style="color:var(--text-faint); font-size:12px;">${car.plate} • ${car.color}</span>` : 
+            "Véhicule non spécifié";
+
+        // Preferences
+        const p = curTrip.prefs || {};
+        document.getElementById('m-prefs').innerHTML = `
+            ${p.ac ? '<span title="Clim" style="font-size:18px;">❄️</span>' : ''}
+            ${p.music ? '<span title="Musique" style="font-size:18px;">🎵</span>' : ''}
+            ${p.pets ? '<span title="Animaux" style="font-size:18px;">🐾</span>' : ''}
+            ${p.smoking ? '<span title="Fumeur" style="font-size:18px;">🚬</span>' : ''}
+            ${!p.ac && !p.music && !p.pets && !p.smoking ? '<span style="color:var(--text-faint); font-weight:400;">Aucune</span>' : ''}
+        `;
+
+        document.getElementById('m-bal').innerText = `${Number(u.balance || 0).toFixed(2)} TND`;
+        updateModal();
+        document.getElementById('modal-book').classList.add('open');
+    }
+
+    async function contactDriver() {
+        const msg = prompt(`Envoyer un message à ${curTrip.driver}:`);
+        if(!msg) return;
+        const res = await window.API.sendMessage(curTrip.driverId, msg);
+        if(res.success) Toast.show("Message envoyé !", "success");
+        else Toast.show(res.error, "error");
+    }
+
+    function closeModal() { document.getElementById('modal-book').classList.remove('open'); }
+    
+    function step(n) {
+        curQty = Math.max(1, Math.min(Number(curTrip.seats || 1), curQty + n));
+        updateModal();
+    }
+
+    function updateModal() {
+        const u = window.API.getCurrentUser();
+        const total = Number(curTrip.price || 0) * curQty;
+        document.getElementById('m-qty').innerText = curQty;
+        document.getElementById('m-total').innerText = `${Number(total).toFixed(2)} TND`;
+        document.getElementById('m-rem').innerText = `${(Number(u.balance || 0) - total).toFixed(2)} TND`;
+        
+        const btn = document.getElementById('btn-confirm');
+        if(Number(u.balance || 0) < total) {
+            btn.disabled = true;
+            btn.innerText = 'Solde insuffisant';
+            btn.classList.add('btn-secondary');
+        } else {
+            btn.disabled = false;
+            btn.innerText = 'Confirmer le paiement';
+            btn.classList.remove('btn-secondary');
+        }
+    }
+
+    async function confirmBooking() {
+        const btn = document.getElementById('btn-confirm');
+        btn.classList.add('loading');
+        
+        const res = await window.API.bookTrip(curTrip.id, curQty);
+        btn.classList.remove('loading');
+        
+        if(res.error) Toast.show(res.error, 'error');
+        else {
+            closeModal();
+            Toast.show('Réservation envoyée au chauffeur !', 'success');
+            renderTrips();
+        }
+    }
+
+    async function reportTrip(driverId) {
+        const u = window.API.getCurrentUser();
+        if(!u) return Toast.show("Connectez-vous pour signaler.", "error");
+        const reason = prompt("Raison du signalement :");
+        if(!reason) return;
+        await window.API.submitReport(driverId, reason);
+        Toast.show("Signalement envoyé.");
+    }
+
+    document.getElementById('btn-confirm').addEventListener('click', confirmBooking);
+  </script>
+</body>
+</html>

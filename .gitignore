@@ -1,0 +1,47 @@
+# ============================================================
+# CovoitDark — .gitignore
+# ============================================================
+
+# Maven build output
+target/
+*.jar
+*.war
+*.ear
+
+# Compiled Java classes
+*.class
+
+# IDE — IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# IDE — VS Code
+.vscode/
+
+# IDE — Eclipse
+.classpath
+.project
+.settings/
+
+# AI tooling (Claude, MCP, Playwright)
+.claude/
+.mcp.json
+.playwright-mcp/
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Environment / secrets
+.env
+.env.local
+*.properties
+
+# Test seed data (optional — keep if needed for dev)
+# db/seed_test.sql

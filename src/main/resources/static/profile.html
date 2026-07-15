@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Covoit - Mon Profil</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .side-nav {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .side-link {
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .side-link:hover {
+            background: var(--bg-surface);
+            color: var(--text-main);
+        }
+
+        .side-link.active {
+            background: var(--primary-glow);
+            color: var(--primary);
+        }
+
+        .section-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-sm);
+            display: none;
+        }
+
+        .section-card.active {
+            display: block;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .car-card {
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color var(--transition);
+        }
+
+        .car-card:hover {
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- THE FLAWLESS NAVBAR -->
+    <nav class="navbar">
+        <a href="index.html" class="brand">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+                <path d="M12 2L2 22h20L12 2zm0 4.83l6.5 13.17H5.5L12 6.83z" />
+            </svg> Covoit
+        </a>
+        <div class="nav-links">
+            <a href="search.html" class="nav-link">Rechercher</a>
+            <a href="publish.html" class="nav-link">Proposer un trajet</a>
+            <a href="dashboard.html" class="nav-link" id="nav-books" style="display:none;">Mes réservations</a>
+        </div>
+        <div class="nav-actions" id="n-user" style="display:none;">
+            <a href="wallet.html" class="badge badge-success" style="font-size:14px; padding:6px 16px;"
+                id="u-bal">...</a>
+            <a href="profile.html"><img src="" class="avatar" id="u-avatar" style="border-color:var(--primary);"></a>
+        </div>
+    </nav>
+
+    <main class="container profile-layout">
+        <aside class="side-nav">
+            <div class="side-link active" onclick="switchSection('gen')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg> G&eacute;n&eacute;ral
+            </div>
+            <div class="side-link" onclick="switchSection('cars')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg> Mes Véhicules
+            </div>
+            <div class="side-link" onclick="switchSection('saved')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg> Recherches Sauvegardées
+            </div>
+            <div class="side-link" onclick="switchSection('badges')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <circle cx="12" cy="8" r="7"></circle>
+                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                </svg> Mes Badges
+            </div>
+            <div class="divider" style="margin:8px 0;"></div>
+            <div class="side-link" style="color:var(--error);" onclick="window.API.logout()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg> Déposer mon compte
+            </div>
+        </aside>
+
+        <div class="profile-content">
+            <!-- GENERAL SECTION -->
+            <section class="section-card active" id="sec-gen">
+                <h1 style="font-size:28px; font-weight:800; margin-bottom:8px;">Paramètres du compte</h1>
+                <p style="color:var(--text-muted); margin-bottom:40px;">Gérez vos informations personnelles et votre
+                    rôle.</p>
+
+                <div class="flex items-center gap-6" style="margin-bottom:40px;">
+                    <img src="" id="p-avatar"
+                        style="width:100px; height:100px; border-radius:50%; border:2px solid var(--border-light);">
+                    <div class="flex-col">
+                        <h3 id="p-name-display" style="font-weight:800; font-size:20px;">...</h3>
+                        <div id="p-role-badge"></div>
+                    </div>
+                </div>
+
+                <form id="form-profile" class="flex-col gap-6" style="margin-bottom: 40px;">
+                    <div class="form-group">
+                        <label>Nom complet</label>
+                        <input type="text" id="p-name" class="input-base" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Adresse E-mail</label>
+                        <input type="email" id="p-email" class="input-base" disabled
+                            style="background:var(--bg-app); cursor:not-allowed;">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:fit-content; padding:0 32px;">
+                        <div class="spinner"></div>Enregistrer les modifications
+                    </button>
+                </form>
+
+                <!-- DRIVER QUICK ACTION -->
+                <div id="driver-quick-action"
+                    style="display:none; background:var(--primary-glow); border:1px solid var(--primary); padding:24px; border-radius:var(--radius-lg); align-items:center; justify-content:space-between;">
+                    <div class="flex items-center gap-4">
+                        <div style="font-size:32px;">🚗</div>
+                        <div class="flex-col">
+                            <h4 style="font-weight:800; color:var(--primary);">Gérez votre flotte</h4>
+                            <p style="font-size:14px; font-weight:600; color:var(--primary);">Ajoutez ou modifiez vos
+                                voitures pour vos prochains trajets.</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="height:44px;" onclick="switchSection('cars')">Accéder à mes
+                        voitures</button>
+                </div>
+            </section>
+
+            <!-- CARS SECTION -->
+            <section class="section-card" id="sec-cars">
+                <div class="flex justify-between items-center" style="margin-bottom:8px;">
+                    <h1 style="font-size:28px; font-weight:800;">Mes Véhicules</h1>
+                    <button class="btn btn-primary"
+                        onclick="document.getElementById('modal-car').classList.add('open')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"
+                            height="20">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg> Ajouter un véhicule
+                    </button>
+                </div>
+                <p style="color:var(--text-muted); margin-bottom:40px;">Ajoutez un véhicule pour pouvoir proposer des
+                    trajets.</p>
+                <div id="car-list" class="flex-col"></div>
+            </section>
+
+            <!-- SAVED SEARCHES SECTION -->
+            <section class="section-card" id="sec-saved">
+                <h1 style="font-size:28px; font-weight:800; margin-bottom:8px;">Recherches Sauvegardées</h1>
+                <p style="color:var(--text-muted); margin-bottom:40px;">Retrouvez vos trajets préférés en un clic.</p>
+                <div id="saved-list" class="flex-col"></div>
+            </section>
+
+            <!-- BADGES SECTION (Badge.java) -->
+            <section class="section-card" id="sec-badges">
+                <h1 style="font-size:28px; font-weight:800; margin-bottom:8px;">Mes Badges & Succès</h1>
+                <p style="color:var(--text-muted); margin-bottom:40px;">Votre engagement sur la plateforme récompensé.
+                </p>
+                <div id="badge-list"
+                    style="display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:20px;">
+                    <!-- Sample Badges -->
+                    <div class="card" style="text-align:center; padding:24px; opacity:1;">
+                        <div style="font-size:40px; margin-bottom:12px;">🌟</div>
+                        <div style="font-weight:800; font-size:13px;">Passager Modèle</div>
+                    </div>
+                    <div class="card" style="text-align:center; padding:24px; opacity:0.3; filter:grayscale(1);">
+                        <div style="font-size:40px; margin-bottom:12px;">👑</div>
+                        <div style="font-weight:800; font-size:13px;">Super Conducteur</div>
+                    </div>
+                    <div class="card" style="text-align:center; padding:24px; opacity:0.3; filter:grayscale(1);">
+                        <div style="font-size:40px; margin-bottom:12px;">⚡</div>
+                        <div style="font-weight:800; font-size:13px;">Rapide & Fiable</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- ADD CAR MODAL -->
+    <div class="modal-overlay" id="modal-car">
+        <div class="modal-content">
+            <button class="modal-close"
+                onclick="document.getElementById('modal-car').classList.remove('open')">&times;</button>
+            <h2 style="font-size:24px; font-weight:800; margin-bottom:24px;">Nouveau véhicule</h2>
+            <form id="form-add-car" class="flex-col gap-4">
+                <div class="form-group">
+                    <label>Marque</label>
+                    <input type="text" id="c-brand" class="input-base" placeholder="Ex: Peugeot" required>
+                </div>
+                <div class="form-group">
+                    <label>Modèle</label>
+                    <input type="text" id="c-model" class="input-base" placeholder="Ex: 208" required>
+                </div>
+                <div class="flex gap-4">
+                    <div class="form-group">
+                        <label>Plaque d'immatriculation</label>
+                        <input type="text" id="c-plate" class="input-base" placeholder="123 TN 456" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Couleur</label>
+                        <input type="text" id="c-color" class="input-base" placeholder="Gris" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; height:52px; margin-top:16px;">
+                    <div class="spinner"></div>Ajouter le véhicule
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        let u = window.API.getCurrentUser();
+
+        function switchSection(id, el) {
+            document.querySelectorAll('.section-card').forEach(s => s.classList.remove('active'));
+            document.getElementById(`sec-${id}`).classList.add('active');
+            document.querySelectorAll('.side-link').forEach(l => l.classList.remove('active'));
+            if (el) el.classList.add('active');
+            if (id === 'cars') renderCars();
+            if (id === 'saved') renderSaved();
+        }
+
+        function renderSaved() {
+            const list = document.getElementById('saved-list');
+            const items = window.API.getSavedSearches();
+            if (items.length === 0) {
+                list.innerHTML = `<div class="empty-state" style="padding:40px;"><p style="color:var(--text-muted);">Vous n'avez pas de recherches sauvegardées.</p></div>`;
+                return;
+            }
+            list.innerHTML = items.map(s => `
+            <div class="car-card">
+                <div class="flex items-center gap-4">
+                    <div style="font-size:24px;">🔖</div>
+                    <div class="flex-col">
+                        <span style="font-weight:700; font-size:16px;">${s.departure} → ${s.arrival}</span>
+                        <span style="font-size:12px; color:var(--text-muted); font-weight:600;">Sauvegardé le ${new Date(s.createdAt).toLocaleDateString()}</span>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn btn-secondary" style="height:36px; padding:0 16px; font-size:12px;" onclick="window.location.href='search.html?dep=${s.departure}&arr=${s.arrival}'">Rechercher</button>
+                    <button class="btn-ghost" style="color:var(--error);" onclick="deleteSaved(${s.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                </div>
+            </div>
+        `).join('');
+        }
+
+        async function deleteSaved(id) {
+            window.API.deleteSavedSearch(id);
+            Toast.show('Recherche supprimée');
+            renderSaved();
+        }
+
+        function renderCars() {
+            const cars = window.API.getCars();
+            const list = document.getElementById('car-list');
+            if (cars.length === 0) {
+                list.innerHTML = `<div class="empty-state" style="padding:40px;"><p style="color:var(--text-muted);">Vous n'avez pas encore de véhicule enregistré.</p></div>`;
+                return;
+            }
+            list.innerHTML = cars.map(c => `
+            <div class="car-card">
+                <div class="flex items-center gap-4">
+                    <div style="width:48px; height:48px; border-radius:12px; background:var(--bg-app); display:flex; align-items:center; justify-content:center; font-size:24px;">🚗</div>
+                    <div class="flex-col">
+                        <span style="font-weight:700; font-size:16px;">${c.brand} ${c.model}</span>
+                        <span style="font-size:13px; font-weight:600; color:var(--text-muted);">${c.plate} • ${c.color}</span>
+                    </div>
+                </div>
+                <button class="btn-ghost" style="color:var(--error); padding:8px;" onclick="deleteCar(${c.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+            </div>
+        `).join('');
+        }
+
+        async function deleteCar(id) {
+            const res = await window.API.deleteCar(id);
+            if (!res.error) {
+                Toast.show('Véhicule supprimé');
+                renderCars();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!u) return window.location.href = 'auth.html';
+
+            // Profile Page specifics
+            document.getElementById('p-avatar').src = `https://ui-avatars.com/api/?name=${u.name.replace(' ', '+')}&background=2563EB&color=fff&size=128`;
+            document.getElementById('p-name').value = u.name;
+            document.getElementById('p-name-display').innerText = u.name;
+            document.getElementById('p-email').value = u.email;
+
+            const roleLbl = { 'PASSENGER': 'Passager Verifié', 'DRIVER': 'Conducteur Verifié', 'ADMIN': 'Administrateur' };
+            const roleCls = { 'PASSENGER': 'badge-success', 'DRIVER': 'badge-primary', 'ADMIN': 'badge-error' };
+            document.getElementById('p-role-badge').innerHTML = `<span class="badge ${roleCls[u.role]}" style="margin-top:8px;">${roleLbl[u.role]}</span>`;
+
+            if (u.role === 'DRIVER' || u.role === 'ADMIN') {
+                document.getElementById('driver-quick-action').style.display = 'flex';
+            }
+
+            document.getElementById('form-add-car').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                btn.classList.add('loading');
+
+                const res = await window.API.addCar({
+                    brand: document.getElementById('c-brand').value,
+                    model: document.getElementById('c-model').value,
+                    plate: document.getElementById('c-plate').value,
+                    color: document.getElementById('c-color').value
+                });
+
+                btn.classList.remove('loading');
+                if (res.error) Toast.show(res.error, 'error');
+                else {
+                    document.getElementById('modal-car').classList.remove('open');
+                    Toast.show('Véhicule ajouté ! Vous êtes maintenant Conducteur.', 'success');
+                    u = window.API.getCurrentUser();
+                    document.getElementById('form-add-car').reset();
+                    renderCars();
+                    // Update role badge immediately
+                    document.getElementById('p-role-badge').innerHTML = `<span class="badge badge-primary" style="margin-top:8px;">Conducteur Verifié</span>`;
+                }
+            });
+
+            document.getElementById('form-profile').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                btn.classList.add('loading');
+
+                // Logic to update user name
+                const newName = document.getElementById('p-name').value;
+                u.name = newName;
+                let users = DB.get('cov_users');
+                users[users.findIndex(ux => ux.id === u.id)] = u;
+                DB.set('cov_users', users);
+
+                await window.delay(600);
+                btn.classList.remove('loading');
+                Toast.show('Profil mis à jour !');
+                document.getElementById('p-name-display').innerText = newName;
+            });
+        });
+    </script>
+</body>
+
+</html>

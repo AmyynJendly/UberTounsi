@@ -1,0 +1,8 @@
+[
+    { "name": "Peugeot", "logo": "img/logos/peugeot.png" }, { "name": "Renault", "logo": "img/logos/renault.png" },
+    { "name": "Citroën", "logo": "img/logos/citroen.png" }, { "name": "Volkswagen", "logo": "img/logos/volkswagen.png" },
+    { "name": "Toyota", "logo": "img/logos/toyota.png" }, { "name": "Hyundai", "logo": "img/logos/hyundai.png" },
+    { "name": "Kia", "logo": "img/logos/kia.png" }, { "name": "Fiat", "logo": "img/logos/fiat.png" },
+    { "name": "Mercedes", "logo": "img/logos/mercedes.png" }, { "name": "BMW", "logo": "img/logos/bmw.png" },
+    { "name": "Audi", "logo": "img/logos/audi.png" }, { "name": "SEAT", "logo": "img/logos/seat.png" }
+]
