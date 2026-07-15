@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🚗 UberTounsi (CovoitDark)</h1>
+  <h1>🚗 UberTounsi</h1>
   <p><strong>Premium Native Java Web Server for a Carpooling Platform</strong></p>
 
   <!-- Badges -->
