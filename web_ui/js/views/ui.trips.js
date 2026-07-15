@@ -31,7 +31,7 @@ function tripCardHTML(trip) {
         <div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="trip-route"><span>${safeDep}</span><span class="arrow">→</span><span>${safeArr}</span></div><div class="trip-id">Trajet #${trip.id}${carLabel ? ' · ' + carColorDot + carLabel : ''}</div></div><span class="status ${trip.availableSeats > 0 ? 'status-available' : 'status-completed'}">${trip.availableSeats > 0 ? trip.availableSeats + ' ' + window.t('seats') : 'Complet'}</span></div>
         <div class="trip-progress"><div class="trip-progress-fill" style="width:${Math.min(90, 30 + Math.random() * 55)}%"></div></div>
         <div class="trip-meta"><div class="trip-meta-item"><span class="trip-meta-label">${window.t('driver')}</span><span class="trip-meta-value">${safeName}</span></div><div class="trip-meta-item"><span class="trip-meta-label">${window.t('from')}</span><span class="trip-meta-value">${trip.departureTime || '— '}</span></div><div class="trip-meta-item"><span class="trip-meta-label">Distance</span><span class="trip-meta-value">${dist} km</span></div><div class="trip-meta-item"><span class="trip-meta-label">${window.t('price')}</span><span class="trip-meta-value">${(trip.price || 0).toFixed(1)} TND</span></div></div>
-        <div class="trip-driver"><div class="trip-driver-info"><img class="trip-driver-avatar" src="${trip.avatar && trip.avatar.length > 10 ? trip.avatar : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(trip.driverName || 'User') + '&background=random'}"><div><div class="trip-driver-label">${window.t('driver')}</div><div class="trip-driver-name">${safeFullName} <span style="color:var(--warning);font-weight:800;margin-left:4px;cursor:pointer;text-decoration:underline dotted" onclick="event.stopPropagation();openReviewsModal(${trip.driverId},'${encodeURIComponent(trip.driverName||'')}',${Number(trip.rating||5).toFixed(1)})">★ ${Number(trip.rating || 5.0).toFixed(1)}</span></div></div></div><div class="trip-actions"><button class="trip-action-btn" title="Signaler" onclick="event.stopPropagation();openReportModal(${trip.driverId})">${ICO.shield}</button><button class="trip-action-btn" title="Message" onclick="event.stopPropagation();Router.navigate('messages')">${ICO.msg}</button><button class="trip-action-btn trip-fav-btn" id="fav-btn-${trip.driverId}" title="Ajouter aux favoris" onclick="event.stopPropagation();toggleFavoriteDriver(${trip.driverId}, this)">${ICO.heart}</button><button class="trip-action-btn" title="${window.t('book')}" onclick="event.stopPropagation();openBookModal(${trip.id})">${ICO.book}</button></div></div></div>`;
+        <div class="trip-driver"><div class="trip-driver-info"><img class="trip-driver-avatar" src="${(trip.avatar && trip.avatar !== 'no-avatar' && trip.avatar.length > 10) ? trip.avatar : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(trip.driverName || 'User') + '&background=random'}"><div><div class="trip-driver-label">${window.t('driver')}</div><div class="trip-driver-name">${safeFullName} <span style="color:var(--warning);font-weight:800;margin-left:4px;cursor:pointer;text-decoration:underline dotted" onclick="event.stopPropagation();openReviewsModal(${trip.driverId},'${encodeURIComponent(trip.driverName||'')}',${Number(trip.rating||5).toFixed(1)})">★ ${Number(trip.rating || 5.0).toFixed(1)}</span></div></div></div><div class="trip-actions"><button class="trip-action-btn" title="Signaler" onclick="event.stopPropagation();openReportModal(${trip.driverId})">${ICO.shield}</button><button class="trip-action-btn" title="Message" onclick="event.stopPropagation();Router.navigate('messages')">${ICO.msg}</button><button class="trip-action-btn trip-fav-btn" id="fav-btn-${trip.driverId}" title="Ajouter aux favoris" onclick="event.stopPropagation();toggleFavoriteDriver(${trip.driverId}, this)">${ICO.heart}</button><button class="trip-action-btn" title="${window.t('book')}" onclick="event.stopPropagation();openBookModal(${trip.id})">${ICO.book}</button></div></div></div>`;
 }
 
 // ── Feature 7: Favorite driver toggle ────────────────────────────────────────
@@ -90,7 +90,7 @@ window.selectTrip = async function (id) {
         model: trip.carInfo ? trip.carInfo.split(' ').slice(1).join(' ') : 'Inconnu',
         color: trip.carColor || 'Gris',
         plate: trip.carPlate || '— ',
-        image: trip.carImage
+        image: (trip.carImage && trip.carImage !== 'no-image') ? trip.carImage : null
     };
     const carLogoEntry = CAR_BRANDS.find(b => b.name === car.brand);
     const carLogo = carLogoEntry?.logo || '';
@@ -116,7 +116,7 @@ window.selectTrip = async function (id) {
 
     // Car thumbnail: show uploaded photo if available, else placeholder; logo always as badge
     const carPhotoHtml = car.image
-        ? `<img class="detail-car-photo" src="${car.image}">`
+        ? `<img class="detail-car-photo" src="${car.image}" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\'detail-car-nophoto\'>${(logoHtml || ICO.car).replace(/'/g,'\\'')}\</div>')"`>
         : `<div class="detail-car-nophoto">${logoHtml || ICO.car}</div>`;
     const logoBadgeHtml = (carLogo && carLogo.includes('img/'))
         ? `<div class="detail-car-logo-badge"><img src="${carLogo}" onerror="this.parentElement.style.display='none'"></div>`
@@ -128,7 +128,7 @@ window.selectTrip = async function (id) {
             <!-- LEFT: hero -->
             <div class="detail-hero">
                 <div class="detail-avatar-circle">
-                    <img src="${trip.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(initials) + '&background=3b82f6&color=fff'}" style="width:100%;height:100%;object-fit:cover">
+                    <img src="${(trip.avatar && trip.avatar !== 'no-avatar') ? trip.avatar : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(initials) + '&background=3b82f6&color=fff'}" style="width:100%;height:100%;object-fit:cover">
                 </div>
                 <div class="detail-hero-info">
                     <h2 class="detail-route-title">${trip.departure} <span class="arrow">→</span> ${trip.arrival}</h2>
