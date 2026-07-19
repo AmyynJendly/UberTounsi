@@ -1073,8 +1073,10 @@ public class App {
         public void handle(HttpExchange exchange) throws IOException {
             String pathStr = exchange.getRequestURI().getPath();
             if (pathStr.equals("/")) pathStr = "/index.html";
-
-            Path filePath = Paths.get(baseDir, pathStr).normalize();
+            // Strip leading slash: on Linux, Paths.get("web_ui", "/img/x.png") returns
+            // the absolute path /img/x.png (ignoring baseDir). We need a relative segment.
+            String relativePath = pathStr.startsWith("/") ? pathStr.substring(1) : pathStr;
+            Path filePath = Paths.get(baseDir, relativePath).normalize();
 
             // Security: ensure the resolved path stays within the base directory
             if (!filePath.startsWith(Paths.get(baseDir).normalize())) {
