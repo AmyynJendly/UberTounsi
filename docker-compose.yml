@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # MySQL Database Service
+  # ── MySQL Database ────────────────────────────────────────────────────────────
   db:
     image: mysql:8.0
     container_name: ubertounsi_db
@@ -15,14 +15,21 @@ services:
       - db_data:/var/lib/mysql
       - ./db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
       - ./db/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
+  # ── Java Application ──────────────────────────────────────────────────────────
   app:
     build: .
     container_name: ubertounsi_app
     restart: always
     ports:
-      - "8080:8080" 
-      - "8081:8081" 
+      - "8080:8080"
+      - "8081:8081"
     environment:
       DB_HOST: db
       DB_PORT: "3306"
@@ -30,7 +37,8 @@ services:
       DB_USER: root
       DB_PASSWORD: rootpassword
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:
