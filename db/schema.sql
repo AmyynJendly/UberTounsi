@@ -27,6 +27,9 @@ CREATE TABLE IF NOT EXISTS users (
     failed_logins   INT DEFAULT 0,
     balance         DOUBLE DEFAULT 0.0,
     avatar          TEXT,
+    id_verified     BOOLEAN DEFAULT FALSE,
+    cancellation_rate DOUBLE  DEFAULT 0.0,
+    id_document     TEXT DEFAULT NULL,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -78,6 +81,9 @@ CREATE TABLE IF NOT EXISTS requests (
     total_cost      DOUBLE NOT NULL DEFAULT 0.0,
     secret_code     VARCHAR(10),
     status          ENUM('PENDING','ACCEPTED','REJECTED','WAITLIST','CANCELLED','COMPLETE','NEGOTIATING') DEFAULT 'PENDING',
+    luggage_size    ENUM('NONE','SMALL','LARGE') DEFAULT 'SMALL',
+    counter_price   DOUBLE DEFAULT NULL,
+    promo_code      VARCHAR(30) DEFAULT NULL,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE,
     FOREIGN KEY (passenger_id) REFERENCES users(id) ON DELETE CASCADE
@@ -177,6 +183,8 @@ CREATE TABLE IF NOT EXISTS stats (
     total_trips     INT DEFAULT 0,
     money_saved     DOUBLE DEFAULT 0.0,
     co2_saved       DOUBLE DEFAULT 0.0,
+    money_earned    DOUBLE DEFAULT 0.0,
+    cancelled_trips INT    DEFAULT 0,
     updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -241,20 +249,6 @@ CREATE TABLE IF NOT EXISTS disputes (
     FOREIGN KEY (complainant_id)  REFERENCES users(id)
 );
 
--- Add new columns to existing tables
-ALTER TABLE users
-    ADD COLUMN IF NOT EXISTS id_verified     BOOLEAN DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS cancellation_rate DOUBLE  DEFAULT 0.0;
-
-ALTER TABLE stats
-    ADD COLUMN IF NOT EXISTS money_earned    DOUBLE DEFAULT 0.0,
-    ADD COLUMN IF NOT EXISTS cancelled_trips INT    DEFAULT 0;
-
-ALTER TABLE requests
-    ADD COLUMN IF NOT EXISTS luggage_size    ENUM('NONE','SMALL','LARGE') DEFAULT 'SMALL',
-    ADD COLUMN IF NOT EXISTS counter_price   DOUBLE DEFAULT NULL,
-    ADD COLUMN IF NOT EXISTS promo_code      VARCHAR(30) DEFAULT NULL;
-
 -- 18. Audit Log
 CREATE TABLE IF NOT EXISTS audit_log (
     id          INT PRIMARY KEY AUTO_INCREMENT,
@@ -279,10 +273,6 @@ CREATE TABLE IF NOT EXISTS payment_methods (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Add ID document image to users
-ALTER TABLE users
-    ADD COLUMN IF NOT EXISTS id_document TEXT DEFAULT NULL;
-
 -- Default admin account (password: Admin1234!)
 -- Hash will be set by AuthController.createDefaultAdmin() on first run
 INSERT IGNORE INTO users (full_name, email, password, salt, role, is_verified)
@@ -291,15 +281,15 @@ VALUES ('Administrateur', 'admin@covoitdark.tn', 'CHANGEME', 'CHANGEME', 'ADMIN'
 -- ============================================================
 -- Performance Indexes
 -- ============================================================
-CREATE INDEX IF NOT EXISTS idx_trips_search ON trips(departure(50), arrival(50), start_date, status);
-CREATE INDEX IF NOT EXISTS idx_trips_driver ON trips(driver_id, status);
-CREATE INDEX IF NOT EXISTS idx_requests_passenger ON requests(passenger_id, status);
-CREATE INDEX IF NOT EXISTS idx_requests_trip ON requests(trip_id, status);
-CREATE INDEX IF NOT EXISTS idx_messages_receiver ON messages(receiver_id, sent_at);
-CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, is_read);
-CREATE INDEX IF NOT EXISTS idx_ratings_rated ON ratings(rated_id);
-CREATE INDEX IF NOT EXISTS idx_otp_user      ON otp_verifications(user_id, used);
-CREATE INDEX IF NOT EXISTS idx_trip_chat     ON trip_chat_messages(trip_id, sent_at);
-CREATE INDEX IF NOT EXISTS idx_disputes      ON disputes(trip_id, status);
-CREATE INDEX IF NOT EXISTS idx_fav_passenger ON driver_favorites(passenger_id);
-CREATE INDEX IF NOT EXISTS idx_audit_actor   ON audit_log(actor_id, created_at);
+CREATE INDEX idx_trips_search ON trips(departure(50), arrival(50), start_date, status);
+CREATE INDEX idx_trips_driver ON trips(driver_id, status);
+CREATE INDEX idx_requests_passenger ON requests(passenger_id, status);
+CREATE INDEX idx_requests_trip ON requests(trip_id, status);
+CREATE INDEX idx_messages_receiver ON messages(receiver_id, sent_at);
+CREATE INDEX idx_notifications_user ON notifications(user_id, is_read);
+CREATE INDEX idx_ratings_rated ON ratings(rated_id);
+CREATE INDEX idx_otp_user      ON otp_verifications(user_id, used);
+CREATE INDEX idx_trip_chat     ON trip_chat_messages(trip_id, sent_at);
+CREATE INDEX idx_disputes      ON disputes(trip_id, status);
+CREATE INDEX idx_fav_passenger ON driver_favorites(passenger_id);
+CREATE INDEX idx_audit_actor   ON audit_log(actor_id, created_at);
