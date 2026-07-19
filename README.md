@@ -282,7 +282,7 @@ The backend exposes a REST API on port `8080`. Key endpoints:
 
 ## 👨‍💻 Author
 
-**Jendly** — Built as a full-stack engineering portfolio project.
+**Amyyn Jendly** — Built as a full-stack engineering portfolio project.
 
 [![GitHub](https://img.shields.io/badge/GitHub-AmyynJendly-181717?style=for-the-badge&logo=github)](https://github.com/AmyynJendly)
 
