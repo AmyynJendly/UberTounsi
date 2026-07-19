@@ -130,7 +130,7 @@ public class App {
             server.createContext("/api/payments/delete", new DeletePaymentMethodHandler());
 
             // Static Files
-            server.createContext("/", new StaticFileHandler("web_ui"));
+            server.createContext("/", new StaticFileHandler("web_ui", "/web_ui"));
 
             server.setExecutor(null); // default executor
             server.start();
@@ -1065,14 +1065,23 @@ public class App {
     static class StaticFileHandler implements HttpHandler {
         private final String baseDir;
 
-        public StaticFileHandler(String baseDir) {
-            this.baseDir = baseDir;
+        public StaticFileHandler(String... baseDirCandidates) {
+            // Pick the first candidate directory that actually exists on disk.
+            // This lets us support both local dev (relative "web_ui") and Docker ("/web_ui").
+            String resolved = baseDirCandidates[0];
+            for (String candidate : baseDirCandidates) {
+                if (new java.io.File(candidate).isDirectory()) {
+                    resolved = candidate;
+                    break;
+                }
+            }
+            this.baseDir = resolved;
         }
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             String pathStr = exchange.getRequestURI().getPath();
-            if (pathStr.equals("/")) pathStr = "/index.html";
+            if (pathStr.equals("/")) pathStr = "/welcome.html";
             // Strip leading slash: on Linux, Paths.get("web_ui", "/img/x.png") returns
             // the absolute path /img/x.png (ignoring baseDir). We need a relative segment.
             String relativePath = pathStr.startsWith("/") ? pathStr.substring(1) : pathStr;
