@@ -164,11 +164,13 @@ That's it. Docker handles the full Maven build, database initialization, and dat
 
 ### 🔑 Demo Credentials
 
+All demo accounts use the password: **`Covoit2026!`**
+
 | Role | Email | Password |
 |---|---|---|
-| 👑 Admin | `admin@covoitdark.tn` | `Admin1234!` |
-| 🚗 Driver | Register a new account | Choose `Driver` role |
-| 🧍 Passenger | Register a new account | Choose `Passenger` role |
+| 👑 Admin | `amine@covoit.tn` | `Covoit2026!` |
+| 🚗 Driver | `youssef@driver.tn` | `Covoit2026!` |
+| 🧍 Passenger | `attia@pass.tn` | `Covoit2026!` |
 
 > The database comes pre-seeded with sample trips, users, and bookings so you can explore all features immediately.
 
