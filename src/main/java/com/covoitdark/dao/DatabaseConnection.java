@@ -19,15 +19,34 @@ public class DatabaseConnection {
     private static DatabaseConnection instance;
     private Connection connection;
 
+    private static final int    MAX_RETRIES    = 15;
+    private static final long   RETRY_DELAY_MS = 2000;
+
     private DatabaseConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("MySQL JDBC Driver not found on classpath.", e);
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to connect to database: " + e.getMessage(), e);
         }
+
+        SQLException lastException = null;
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                System.out.println("[DB] Connected to database on attempt " + attempt);
+                return;
+            } catch (SQLException e) {
+                lastException = e;
+                System.err.println("[DB] Attempt " + attempt + "/" + MAX_RETRIES +
+                        " failed: " + e.getMessage() + ". Retrying in " + (RETRY_DELAY_MS / 1000) + "s...");
+                try { Thread.sleep(RETRY_DELAY_MS); } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+        throw new RuntimeException("Failed to connect to database after " + MAX_RETRIES +
+                " attempts: " + (lastException != null ? lastException.getMessage() : "unknown"), lastException);
     }
 
     public static synchronized DatabaseConnection getInstance() {
