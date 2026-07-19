@@ -31,7 +31,7 @@ function tripCardHTML(trip) {
         <div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="trip-route"><span>${safeDep}</span><span class="arrow">→</span><span>${safeArr}</span></div><div class="trip-id">Trajet #${trip.id}${carLabel ? ' · ' + carColorDot + carLabel : ''}</div></div><span class="status ${trip.availableSeats > 0 ? 'status-available' : 'status-completed'}">${trip.availableSeats > 0 ? trip.availableSeats + ' ' + window.t('seats') : 'Complet'}</span></div>
         <div class="trip-progress"><div class="trip-progress-fill" style="width:${Math.min(90, 30 + Math.random() * 55)}%"></div></div>
         <div class="trip-meta"><div class="trip-meta-item"><span class="trip-meta-label">${window.t('driver')}</span><span class="trip-meta-value">${safeName}</span></div><div class="trip-meta-item"><span class="trip-meta-label">${window.t('from')}</span><span class="trip-meta-value">${trip.departureTime || '— '}</span></div><div class="trip-meta-item"><span class="trip-meta-label">Distance</span><span class="trip-meta-value">${dist} km</span></div><div class="trip-meta-item"><span class="trip-meta-label">${window.t('price')}</span><span class="trip-meta-value">${(trip.price || 0).toFixed(1)} TND</span></div></div>
-        <div class="trip-driver"><div class="trip-driver-info"><img class="trip-driver-avatar" src="${(trip.avatar && trip.avatar !== 'no-avatar' && trip.avatar.length > 10) ? trip.avatar : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(trip.driverName || 'User') + '&background=random'}"><div><div class="trip-driver-label">${window.t('driver')}</div><div class="trip-driver-name">${safeFullName} <span style="color:var(--warning);font-weight:800;margin-left:4px;cursor:pointer;text-decoration:underline dotted" onclick="event.stopPropagation();openReviewsModal(${trip.driverId},'${encodeURIComponent(trip.driverName||'')}',${Number(trip.rating||5).toFixed(1)})">★ ${Number(trip.rating || 5.0).toFixed(1)}</span></div></div></div><div class="trip-actions"><button class="trip-action-btn" title="Signaler" onclick="event.stopPropagation();openReportModal(${trip.driverId})">${ICO.shield}</button><button class="trip-action-btn" title="Message" onclick="event.stopPropagation();Router.navigate('messages')">${ICO.msg}</button><button class="trip-action-btn trip-fav-btn" id="fav-btn-${trip.driverId}" title="Ajouter aux favoris" onclick="event.stopPropagation();toggleFavoriteDriver(${trip.driverId}, this)">${ICO.heart}</button><button class="trip-action-btn" title="${window.t('book')}" onclick="event.stopPropagation();openBookModal(${trip.id})">${ICO.book}</button></div></div></div>`;
+        <div class="trip-driver"><div class="trip-driver-info"><img class="trip-driver-avatar" src="${(trip.avatar && trip.avatar !== 'no-avatar' && trip.avatar.length > 10) ? trip.avatar : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(trip.driverName || 'User') + '&background=random'}"><div><div class="trip-driver-label">${window.t('driver')}</div><div class="trip-driver-name">${safeFullName} <span style="color:var(--warning);font-weight:800;margin-left:4px;cursor:pointer;text-decoration:underline dotted" onclick="event.stopPropagation();openReviewsModal(${trip.driverId},'${encodeURIComponent(trip.driverName || '')}',${Number(trip.rating || 5).toFixed(1)})">★ ${Number(trip.rating || 5.0).toFixed(1)}</span></div></div></div><div class="trip-actions"><button class="trip-action-btn" title="Signaler" onclick="event.stopPropagation();openReportModal(${trip.driverId})">${ICO.shield}</button><button class="trip-action-btn" title="Message" onclick="event.stopPropagation();Router.navigate('messages')">${ICO.msg}</button><button class="trip-action-btn trip-fav-btn" id="fav-btn-${trip.driverId}" title="Ajouter aux favoris" onclick="event.stopPropagation();toggleFavoriteDriver(${trip.driverId}, this)">${ICO.heart}</button><button class="trip-action-btn" title="${window.t('book')}" onclick="event.stopPropagation();openBookModal(${trip.id})">${ICO.book}</button></div></div></div>`;
 }
 
 // ── Feature 7: Favorite driver toggle ────────────────────────────────────────
@@ -116,7 +116,7 @@ window.selectTrip = async function (id) {
 
     // Car thumbnail: show uploaded photo if available, else placeholder; logo always as badge
     const carPhotoHtml = car.image
-        ? `<img class="detail-car-photo" src="${car.image}" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\'detail-car-nophoto\'>${(logoHtml || ICO.car).replace(/'/g,'\\'')}\</div>')"`>
+        ? `<img class="detail-car-photo" src="${car.image}" onerror="this.style.display='none'">`
         : `<div class="detail-car-nophoto">${logoHtml || ICO.car}</div>`;
     const logoBadgeHtml = (carLogo && carLogo.includes('img/'))
         ? `<div class="detail-car-logo-badge"><img src="${carLogo}" onerror="this.parentElement.style.display='none'"></div>`
@@ -132,10 +132,10 @@ window.selectTrip = async function (id) {
                 </div>
                 <div class="detail-hero-info">
                     <h2 class="detail-route-title">${trip.departure} <span class="arrow">→</span> ${trip.arrival}</h2>
-                    <div class="detail-subtitle">${trip.driverName || '—'} <span style="color:#fbbf24;font-weight:800;cursor:pointer;text-decoration:underline dotted;margin-left:4px" onclick="openReviewsModal(${trip.driverId},'${(trip.driverName||'').replace(/'/g,'')}',${Number(trip.rating||5).toFixed(1)})">★ ${Number(trip.rating||5).toFixed(1)}</span> · #${trip.id}</div>
+                    <div class="detail-subtitle">${trip.driverName || '—'} <span style="color:#fbbf24;font-weight:800;cursor:pointer;text-decoration:underline dotted;margin-left:4px" onclick="openReviewsModal(${trip.driverId},'${(trip.driverName || '').replace(/'/g, '')}',${Number(trip.rating || 5).toFixed(1)})">★ ${Number(trip.rating || 5).toFixed(1)}</span> · #${trip.id}</div>
                     <div class="detail-badges-row">
                         ${badgesHtml}
-                        ${trip.pickup ? '<div class="detail-recommended">${ICO.pin} Prise en charge</div>' : ''}
+                        ${trip.pickup ? `<div class="detail-recommended">${ICO.pin} Prise en charge</div>` : ''}
                     </div>
                 </div>
                 <button class="detail-hero-close" onclick="document.getElementById('detail-bar').classList.remove('visible');clearRoute()">${ICO.x}</button>
@@ -153,7 +153,7 @@ window.selectTrip = async function (id) {
                         <div class="detail-stat-unit">km</div>
                     </div>
                     <div class="detail-stat">
-                        <div class="detail-stat-val price">${(trip.price||0).toFixed(1)}</div>
+                        <div class="detail-stat-val price">${(trip.price || 0).toFixed(1)}</div>
                         <div class="detail-stat-unit">TND</div>
                     </div>
                 </div>
