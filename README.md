@@ -11,6 +11,7 @@
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
 ![HTML5](https://img.shields.io/badge/Frontend-HTML%2FCSS%2FJS-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CI](https://github.com/AmyynJendly/UberTounsi/actions/workflows/docker-build.yaml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 </div>
