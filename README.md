@@ -169,7 +169,7 @@ All demo accounts use the password: **`Covoit2026!`**
 
 | Role | Email | Password |
 |---|---|---|
-| 👑 Admin | `amine@covoit.tn` | `Covoit2026!` |
+| 👑 Admin | `admin@covoitdark.tn` | `Covoit2026!` |
 | 🚗 Driver | `youssef@driver.tn` | `Covoit2026!` |
 | 🧍 Passenger | `attia@pass.tn` | `Covoit2026!` |
 
